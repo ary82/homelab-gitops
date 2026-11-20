@@ -1,5 +1,14 @@
 repos:
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
-    hooks:
-      - id: gitleaks
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.30.0
+  hooks:
+  - id: gitleaks
+- repo: local
+  hooks:
+  - id: kustofmt
+    name: Kusto YAML format
+    entry: kustofmt --include-sops -l
+    language: system
+    types:
+    - yaml
+    pass_filenames: true

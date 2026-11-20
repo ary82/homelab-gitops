@@ -9,16 +9,24 @@ spec:
     spec:
       chart: traefik
       version: "42.4.1"
-      sourceRef: { kind: HelmRepository, name: traefik, namespace: flux-system }
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: flux-system
   values:
     deployment:
       replicas: 1
     env:
-      - name: PORKBUN_API_KEY
-        valueFrom: { secretKeyRef: { name: porkbun-credentials, key: api-key } }
-      - name: PORKBUN_SECRET_API_KEY
-        valueFrom:
-          { secretKeyRef: { name: porkbun-credentials, key: secret-key } }
+    - name: PORKBUN_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: porkbun-credentials
+          key: api-key
+    - name: PORKBUN_SECRET_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: porkbun-credentials
+          key: secret-key
     certificatesResolvers:
       letsencrypt:
         acme:
@@ -34,7 +42,9 @@ spec:
       web:
         http:
           redirections:
-            entryPoint: { to: websecure, scheme: https }
+            entryPoint:
+              to: websecure
+              scheme: https
       websecure:
         transport:
           respondingTimeouts:

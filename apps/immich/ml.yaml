@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-ml
+  namespace: immich
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: immich-ml
+  template:
+    metadata:
+      labels:
+        app: immich-ml
+    spec:
+      enableServiceLinks: false
+      containers:
+      - name: ml
+        image: ghcr.io/immich-app/immich-machine-learning:v3
+        env:
+        - name: MACHINE_LEARNING_WORKERS
+          value: "1"
+        - name: MACHINE_LEARNING_MODEL_TTL
+          value: "300"
+        ports:
+        - containerPort: 3003
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 3003
+          initialDelaySeconds: 15
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+        volumeMounts:
+        - name: cache
+          mountPath: /cache
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: model-cache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-ml
+  namespace: immich
+spec:
+  selector:
+    app: immich-ml
+  ports:
+  - port: 3003

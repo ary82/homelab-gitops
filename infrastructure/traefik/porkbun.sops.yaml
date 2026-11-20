@@ -12,15 +12,15 @@ sops:
   azure_kv: []
   hc_vault: []
   age:
-    - recipient: age1d6xqd347exw9h6c9t40jj65wpygf5lejllkv2ksmlw9z0rq2tcxsp30ykl
-      enc: |
-        -----BEGIN AGE ENCRYPTED FILE-----
-        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBvVDVHak1Jd09Rbmk3UUhx
-        d3NEMTFzQkRVQXRra0lUc3pkVmljOWVBZlVFCk9ReVJublRmU1RtYVRqQXZ0M0ly
-        M1luMmdzUjd4ei9qU3RpSlZjbUk1OEUKLS0tIHRkVHY5cW04Rlg3bVhlRWhvTU14
-        cHBnM1pMdGRjd2xZWUtDOGhrcmtwNXMKeh2gASya7c5c02FfUQGeSeT3wgD1IEFf
-        kzgDZtYCLmtZoy6j+zpWKs3FKBZKo++SCA2rU+ifgMlc0VNSzNwRdA==
-        -----END AGE ENCRYPTED FILE-----
+  - recipient: age1d6xqd347exw9h6c9t40jj65wpygf5lejllkv2ksmlw9z0rq2tcxsp30ykl
+    enc: |
+      -----BEGIN AGE ENCRYPTED FILE-----
+      YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBvVDVHak1Jd09Rbmk3UUhx
+      d3NEMTFzQkRVQXRra0lUc3pkVmljOWVBZlVFCk9ReVJublRmU1RtYVRqQXZ0M0ly
+      M1luMmdzUjd4ei9qU3RpSlZjbUk1OEUKLS0tIHRkVHY5cW04Rlg3bVhlRWhvTU14
+      cHBnM1pMdGRjd2xZWUtDOGhrcmtwNXMKeh2gASya7c5c02FfUQGeSeT3wgD1IEFf
+      kzgDZtYCLmtZoy6j+zpWKs3FKBZKo++SCA2rU+ifgMlc0VNSzNwRdA==
+      -----END AGE ENCRYPTED FILE-----
   lastmodified: "2026-11-20T21:36:31Z"
   mac: ENC[AES256_GCM,data:kmqEC7CiYeqFDHCFg5YJ4vn1FrfbtD4dshToqXI7LFEa8I9o29rdPoV8fkXzaLCHLWpwIMPZsXbIfSCA2D4n6W3ZBMhblLzxRcodxXhZQKw75ad2xpxoeoRYf23NjvvrY1Ez6XJ3Ys0/c98tM3ZAmmpsiuJHFrG7LPFILuG62rU=,iv:hf5LilTI+9OFHNPNIJGBmFcxFAwTPpeoKxZIlqbjy2A=,tag:rZgC09Dxzvd9Ju4TwQG18g==,type:str]
   pgp: []

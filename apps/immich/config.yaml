@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: immich-config
+  namespace: immich
+data:
+  TZ: Asia/Kolkata
+  DB_HOSTNAME: immich-postgres
+  DB_USERNAME: postgres
+  DB_DATABASE_NAME: immich
+  REDIS_HOSTNAME: immich-valkey
+  IMMICH_MACHINE_LEARNING_URL: http://immich-ml:3003
