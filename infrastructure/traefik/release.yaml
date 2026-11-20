@@ -23,8 +23,7 @@ spec:
       letsencrypt:
         acme:
           email: acme@ary82.dev
-          caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-          storage: /data/acme-staging.json
+          storage: /data/acme.json
           dnsChallenge:
             provider: porkbun
     persistence:
