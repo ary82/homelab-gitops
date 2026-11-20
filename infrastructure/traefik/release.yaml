@@ -40,5 +40,5 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0
-    accesslog:
+    accessLog:
       enabled: true
