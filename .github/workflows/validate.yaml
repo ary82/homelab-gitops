@@ -1,0 +1,32 @@
+name: validate
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Install kubeconform
+      run: |
+        curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+        sudo mv kubeconform /usr/local/bin/
+    - name: Render and validate
+      run: |
+        for d in infrastructure apps; do
+          kubectl kustomize "$d" | kubeconform -strict -skip Secret -ignore-missing-schemas -summary
+        done
+    - name: Validate Traefik values against chart schema
+      run: |
+        VERSION=$(yq '.spec.chart.spec.version' infrastructure/traefik/release.yaml)
+        yq '.spec.values' infrastructure/traefik/release.yaml > /tmp/traefik-values.yaml
+        helm repo add traefik https://traefik.github.io/charts
+        helm template traefik traefik/traefik --version "$VERSION" -f /tmp/traefik-values.yaml > /dev/null
+    - name: Scan for secrets
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

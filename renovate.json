@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "docker:pinDigests"
+  ],
+  "timezone": "Asia/Kolkata",
+  "prConcurrentLimit": 5,
+  "flux": {
+    "managerFilePatterns": [
+      "/^clusters\\/.+\\.ya?ml$/",
+      "/^infrastructure\\/.+\\.ya?ml$/",
+      "/^apps\\/.+\\.ya?ml$/"
+    ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^apps\\/.+\\.ya?ml$/",
+      "/^infrastructure\\/.+\\.ya?ml$/"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Immich server and ML must move together",
+      "matchPackageNames": [
+        "ghcr.io/immich-app/immich-server",
+        "ghcr.io/immich-app/immich-machine-learning"
+      ],
+      "groupName": "immich"
+    },
+    {
+      "description": "Immich dictates the Postgres image; bump manually per its release notes",
+      "matchPackageNames": ["ghcr.io/immich-app/postgres"],
+      "enabled": false
+    },
+    {
+      "description": "Traefik chart bumps changed value keys before; review each",
+      "matchDepNames": ["traefik"],
+      "matchManagers": ["flux"],
+      "automerge": false
+    },
+    {
+      "description": "Flux is upgraded via flux bootstrap, not Renovate",
+      "matchFileNames": ["clusters/homelab/flux-system/gotk-components.yaml"],
+      "enabled": false
+    }
+  ]
+}
