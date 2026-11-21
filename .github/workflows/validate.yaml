@@ -27,6 +27,6 @@ jobs:
         helm repo add traefik https://traefik.github.io/charts
         helm template traefik traefik/traefik --version "$VERSION" -f /tmp/traefik-values.yaml > /dev/null
     - name: Scan for secrets
-      uses: gitleaks/gitleaks-action@v2
+      uses: gitleaks/gitleaks-action@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
