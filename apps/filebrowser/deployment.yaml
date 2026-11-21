@@ -16,23 +16,26 @@ spec:
         app: filebrowser
     spec:
       enableServiceLinks: false
+      securityContext:
+        runAsUser: 1000 # image's built-in filebrowser user
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
       - name: filebrowser
-        image: ghcr.io/gtsteffaniak/filebrowser:<stable-v1.x-tag>
+        image: ghcr.io/gtsteffaniak/filebrowser:2.0-stable
         env:
         - name: FILEBROWSER_CONFIG
           value: /config/config.yaml
-        envFrom:
-        - secretRef:
-            name: filebrowser-secret
         ports:
         - containerPort: 80
         readinessProbe:
-          tcpSocket:
+          httpGet:
+            path: /health
             port: 80
           initialDelaySeconds: 5
         livenessProbe:
-          tcpSocket:
+          httpGet:
+            path: /health
             port: 80
           initialDelaySeconds: 30
         resources:
