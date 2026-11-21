@@ -18,7 +18,7 @@ spec:
       enableServiceLinks: false
       containers:
       - name: ml
-        image: ghcr.io/immich-app/immich-machine-learning:v3
+        image: ghcr.io/immich-app/immich-machine-learning:v3.4.2
         env:
         - name: MACHINE_LEARNING_WORKERS
           value: "1"

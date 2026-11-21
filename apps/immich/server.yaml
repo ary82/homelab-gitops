@@ -18,7 +18,7 @@ spec:
       enableServiceLinks: false
       containers:
       - name: server
-        image: ghcr.io/immich-app/immich-server:v3
+        image: ghcr.io/immich-app/immich-server:v3.4.2
         envFrom:
         - configMapRef:
             name: immich-config

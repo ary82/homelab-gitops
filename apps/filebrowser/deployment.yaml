@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: filebrowser
-        image: ghcr.io/gtsteffaniak/filebrowser:2.0-stable
+        image: ghcr.io/gtsteffaniak/filebrowser:2.0.2-stable
         env:
         - name: FILEBROWSER_CONFIG
           value: /config/config.yaml
