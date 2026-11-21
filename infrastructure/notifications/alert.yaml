@@ -17,3 +17,5 @@ spec:
   - kind: HelmRelease
     name: "*"
     namespace: traefik
+  exclusionList:
+  - "^Dependencies do not meet ready condition"
