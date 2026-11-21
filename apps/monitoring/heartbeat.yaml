@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: heartbeat
+  namespace: monitoring
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 60
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: ping
+            image: curlimages/curl:8.23.0
+            envFrom:
+            - secretRef:
+                name: healthchecks
+            command:
+            - "sh"
+            - "-c"
+            - 'curl -fsS -m 15 --retry 3 "$HEARTBEAT_URL"'
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
