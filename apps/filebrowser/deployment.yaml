@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filebrowser
+  namespace: filebrowser
+spec:
+  replicas: 1
+  strategy: # SQLite on a ReadWriteOnce volume
+    type: Recreate
+  selector:
+    matchLabels:
+      app: filebrowser
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      enableServiceLinks: false
+      containers:
+      - name: filebrowser
+        image: ghcr.io/gtsteffaniak/filebrowser:<stable-v1.x-tag>
+        env:
+        - name: FILEBROWSER_CONFIG
+          value: /config/config.yaml
+        envFrom:
+        - secretRef:
+            name: filebrowser-secret
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: data
+          mountPath: /home/filebrowser/data
+        - name: documents
+          mountPath: /documents
+      volumes:
+      - name: config
+        configMap:
+          name: filebrowser-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      - name: documents
+        persistentVolumeClaim:
+          claimName: documents
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filebrowser
+  namespace: filebrowser
+spec:
+  selector:
+    app: filebrowser
+  ports:
+  - port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: filebrowser
+  namespace: filebrowser
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+spec:
+  rules:
+  - host: files.sb.ary82.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: filebrowser
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - files.sb.ary82.dev
