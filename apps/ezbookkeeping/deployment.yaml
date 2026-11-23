@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: ezbookkeeping
-        image: docker.io/mayswind/ezbookkeeping:2.2.0
+        image: docker.io/mayswind/ezbookkeeping:2.2.0@sha256:3ffc7b62ac20ccafa6c09c4cd69ba197e257c0dc0adaa0655a0532264c41f982
         env:
         - name: EBK_SECURITY_SECRET_KEY
           valueFrom:
