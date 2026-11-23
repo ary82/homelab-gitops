@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ezbookkeeping
+  namespace: ezbookkeeping
+spec:
+  replicas: 1
+  strategy: # SQLite: one writer
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ezbookkeeping
+  template:
+    metadata:
+      labels:
+        app: ezbookkeeping
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: ezbookkeeping
+        image: docker.io/mayswind/ezbookkeeping:2.2.0
+        env:
+        - name: EBK_SECURITY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ezbookkeeping-secret
+              key: EBK_SECURITY_SECRET_KEY
+        - name: EBK_SERVER_PROTOCOL
+          value: "http"
+        - name: EBK_SERVER_DOMAIN
+          value: "ezbook.sb.ary82.dev"
+        - name: EBK_SERVER_ROOT_URL
+          value: "https://ezbook.sb.ary82.dev/"
+        - name: EBK_SERVER_ENABLE_GZIP
+          value: "true"
+        - name: EBK_LOG_MODE
+          value: "console"
+        - name: TZ
+          value: "Asia/Kolkata"
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 30
+        resources:
+          requests:
+            cpu: 20m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+        volumeMounts:
+        - name: data
+          mountPath: /ezbookkeeping/data
+        - name: storage
+          mountPath: /ezbookkeeping/storage
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      - name: storage
+        persistentVolumeClaim:
+          claimName: storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ezbookkeeping
+  namespace: ezbookkeeping
+spec:
+  selector:
+    app: ezbookkeeping
+  ports:
+  - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ezbookkeeping
+  namespace: ezbookkeeping
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+spec:
+  rules:
+  - host: ezbook.sb.ary82.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ezbookkeeping
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - ezbook.sb.ary82.dev
