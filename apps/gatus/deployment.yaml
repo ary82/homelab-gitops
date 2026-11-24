@@ -27,6 +27,7 @@ spec:
         - memos.sb.ary82.dev
         - ezbook.sb.ary82.dev
         - gatus.sb.ary82.dev
+        - beszel.sb.ary82.dev
       securityContext:
         runAsUser: 65534
         runAsGroup: 65534

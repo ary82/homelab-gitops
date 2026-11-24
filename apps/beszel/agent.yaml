@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: agent
+  namespace: beszel
+spec:
+  selector:
+    matchLabels:
+      app: beszel-agent
+  template:
+    metadata:
+      labels:
+        app: beszel-agent
+    spec:
+      enableServiceLinks: false
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: backup
+        effect: NoSchedule
+      containers:
+      - name: agent
+        image: docker.io/henrygd/beszel-agent:0.21.2@sha256:343254226ae57a5cc6f8c23c755b1464730aba2abc7043116a2e222711ec6e1a
+        env:
+        - name: LISTEN
+          value: "45876"
+        - name: KEY
+          value: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPJzjbPGWNTqDyKVc5UlyuNpAct++4LL+anQiWz+n2Q0 beszel-hub"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            memory: 64Mi
