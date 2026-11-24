@@ -84,6 +84,18 @@ data:
       alerts:
       - type: discord
 
+    - name: linkding
+      group: apps
+      url: https://linkding.sb.ary82.dev/health
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
     - name: gatus
       group: apps
       url: https://gatus.sb.ary82.dev/health
