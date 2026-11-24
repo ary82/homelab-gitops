@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hub
+  namespace: beszel
+spec:
+  replicas: 1
+  strategy: # SQLite: one writer
+    type: Recreate
+  selector:
+    matchLabels:
+      app: beszel-hub
+  template:
+    metadata:
+      labels:
+        app: beszel-hub
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        runAsNonRoot: true
+        fsGroup: 65534
+      containers:
+      - name: hub
+        image: docker.io/henrygd/beszel:0.21.2@sha256:b0be90bd4aee2993fde763032a5098ce4386fba43cfe5031ec017b8d9e8c97a2
+        env:
+        - name: APP_URL
+          value: "https://beszel.sb.ary82.dev"
+        - name: TZ
+          value: Asia/Kolkata
+        ports:
+        - containerPort: 8090
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8090
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8090
+          initialDelaySeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 256Mi
+        volumeMounts:
+        - name: data
+          mountPath: /beszel_data
+        - name: hub-key
+          mountPath: /beszel_data/id_ed25519
+          subPath: id_ed25519
+          readOnly: true
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      - name: hub-key
+        secret:
+          secretName: hub-key
+          defaultMode: 0440 # fsGroup 65534 is how the hub reads it
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hub
+  namespace: beszel
+spec:
+  selector:
+    app: beszel-hub
+  ports:
+  - port: 8090
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hub
+  namespace: beszel
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+spec:
+  rules:
+  - host: beszel.sb.ary82.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hub
+            port:
+              number: 8090
+  tls:
+  - hosts:
+    - beszel.sb.ary82.dev

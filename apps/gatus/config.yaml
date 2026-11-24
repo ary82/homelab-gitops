@@ -72,6 +72,18 @@ data:
       alerts:
       - type: discord
 
+    - name: beszel
+      group: apps
+      url: https://beszel.sb.ary82.dev/api/health
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
     - name: gatus
       group: apps
       url: https://gatus.sb.ary82.dev/health
