@@ -28,6 +28,7 @@ spec:
         - ezbook.sb.ary82.dev
         - gatus.sb.ary82.dev
         - beszel.sb.ary82.dev
+        - linkding.sb.ary82.dev
       securityContext:
         runAsUser: 65534
         runAsGroup: 65534
