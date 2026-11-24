@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-config
+  namespace: gatus
+data:
+  config.yaml: |
+    storage:
+      type: sqlite
+      path: /data/data.db
+
+    ui:
+      title: SeleneBox status
+      header: SeleneBox
+
+    alerting:
+      discord:
+        webhook-url: "${DISCORD_WEBHOOK_URL}"
+        title: ":rotating_light: Gatus"
+        default-alert:
+          failure-threshold: 3
+          success-threshold: 2
+          send-on-resolved: true
+
+    endpoints:
+    - name: immich
+      group: apps
+      url: https://immich.sb.ary82.dev/api/server/ping
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[BODY].res == pong"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
+    - name: files
+      group: apps
+      url: https://files.sb.ary82.dev/health
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
+    - name: memos
+      group: apps
+      url: https://memos.sb.ary82.dev/healthz
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
+    - name: ezbookkeeping
+      group: apps
+      url: https://ezbook.sb.ary82.dev/healthz.json
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord
+
+    - name: gatus
+      group: apps
+      url: https://gatus.sb.ary82.dev/health
+      interval: 2m
+      client:
+        timeout: 10s
+      conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 336h"
+      alerts:
+      - type: discord

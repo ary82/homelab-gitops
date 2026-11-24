@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  replicas: 1
+  strategy: # SQLite: one writer
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gatus
+  template:
+    metadata:
+      labels:
+        app: gatus
+    spec:
+      enableServiceLinks: false
+      # *.sb.ary82.dev resolves to the Tailscale IP; send checks via the node's
+      # LAN IP instead so they hit Traefik (and its real certs) without relying on
+      # pod -> tailnet routing
+      hostAliases:
+      - ip: 192.168.1.101
+        hostnames:
+        - immich.sb.ary82.dev
+        - files.sb.ary82.dev
+        - memos.sb.ary82.dev
+        - ezbook.sb.ary82.dev
+        - gatus.sb.ary82.dev
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        runAsNonRoot: true
+        fsGroup: 65534
+      containers:
+      - name: gatus
+        image: ghcr.io/twin/gatus:v5.38.0@sha256:085ed63da963728965d00a3c78aa6167e3bf135218485b893201758e079e8415
+        env:
+        - name: GATUS_CONFIG_PATH
+          value: /config/config.yaml
+        - name: TZ
+          value: Asia/Kolkata
+        envFrom:
+        - secretRef:
+            name: gatus-secret
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        volumeMounts:
+        # mounted as a directory (not subPath) so ConfigMap edits hot-reload
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: config
+        configMap:
+          name: gatus-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  selector:
+    app: gatus
+  ports:
+  - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gatus
+  namespace: gatus
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+spec:
+  rules:
+  - host: gatus.sb.ary82.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gatus
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - gatus.sb.ary82.dev
