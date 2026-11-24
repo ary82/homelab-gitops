@@ -40,3 +40,13 @@ spec:
             memory: 16Mi
           limits:
             memory: 64Mi
+        volumeMounts:
+        - name: mnt
+          mountPath: /extra-filesystems
+          readOnly: true
+          mountPropagation: HostToContainer
+      volumes:
+      - name: mnt
+        hostPath:
+          path: /mnt
+          type: DirectoryOrCreate
