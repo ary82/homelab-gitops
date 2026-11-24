@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: heartbeat
+  name: heartbeat-elysianlab
   namespace: monitoring
 spec:
   schedule: "*/5 * * * *"
@@ -15,12 +15,22 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: elysianlab
+          tolerations:
+          - key: dedicated
+            operator: Equal
+            value: backup
+            effect: NoSchedule
           containers:
           - name: ping
             image: curlimages/curl:8.23.0@sha256:3fb7e13e5d179a845c97d78204f3f1064d1907037f26a3ebf91710571151fd93
-            envFrom:
-            - secretRef:
-                name: healthchecks
+            env:
+            - name: HEARTBEAT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: healthchecks
+                  key: HEARTBEAT_URL_ELYSIANLAB
             command:
             - "sh"
             - "-c"

@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - secret.sops.yaml
-- heartbeat.yaml
+- heartbeat-selenebox.yaml
+- heartbeat-elysianlab.yaml
